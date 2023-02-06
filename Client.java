@@ -3,10 +3,13 @@ import java.net.*;
 
 class Client {
     public static void main(String args[]) throws Exception {
-        Socket client = new Socket("localhost", 6789);
+        System.out.print("Enter Server IP Address: ");
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        String serverAddress = input.readLine();
+
+        Socket client = new Socket(serverAddress, 6789);
         System.out.println("Connected to Server");
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
         BufferedReader serverInput = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
