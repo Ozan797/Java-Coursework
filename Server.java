@@ -1,34 +1,38 @@
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class Server {
-    public static void main(String[] args) {
-        try {
-            // Listen on port 5555
-            ServerSocket serverSocket = new ServerSocket(5555);
+    public static void main(String[] args) throws IOException {
+        int port = 0;
+        System.out.print("Enter the port number to listen on: ");
+        Scanner sc = new Scanner(System.in);
+        port = sc.nextInt();
+        sc.nextLine();
 
+        try (ServerSocket ss = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + port);
             while (true) {
-                // Accept incoming connection
-                Socket clientSocket = serverSocket.accept();
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                try (Socket socket = ss.accept()) {
+                    System.out.println("Client connected.");
+                    OutputStream os = socket.getOutputStream();
+                    PrintWriter pw = new PrintWriter(os, true);
+                    InputStream is = socket.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-                // Read client ID from client
-                String clientID = in.readLine();
-
-                // Read message from client
-                String message = in.readLine();
-
-                // Send same message back to client
-                out.println(message);
-
-                // Close the socket
-                clientSocket.close();
+                    while (true) {
+                        String message = br.readLine();
+                        if (message == null) {
+                            break;
+                        }
+                        pw.println("Message received: " + message);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: Could not receive message.");
+                }
             }
         } catch (IOException e) {
-            System.err.println("I/O exception " + e.getMessage());
-            System.exit(1);
+            System.out.println("Error: Could not listen on port " + port);
         }
     }
-}
-    
+}  

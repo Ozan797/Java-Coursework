@@ -1,51 +1,37 @@
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
+import java.util.*;
 
 public class Client {
-    public static void main(String[] args) {
-        try {
-            Scanner sc = new Scanner(System.in);
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        int ID = 0;
+        System.out.print("Enter the server IP address: ");
+        String serverIP = sc.nextLine();
+        System.out.print("Enter the server port number: ");
+        int port = sc.nextInt();
+        sc.nextLine();
 
-            // Prompt user to enter server IP address
-            System.out.print("Enter server IP address: ");
-            String serverAddress = sc.nextLine();
+        try (Socket socket = new Socket(serverIP, port)) {
+            System.out.println("Connected to server.");
+            ID = ID + 1;
+            System.out.println("Your ID number is " + ID);
 
-            // Prompt user to enter server port number
-            System.out.print("Enter server port number: ");
-            int portNumber = sc.nextInt();
+            OutputStream os = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(os, true);
+            InputStream is = socket.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            // Prompt user to enter client ID
-            System.out.print("Enter client ID: ");
-            sc.nextLine();
-            String clientID = sc.nextLine();
-
-            // Connect to the server
-            Socket socket = new Socket(serverAddress, portNumber);
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Send client ID to server
-            out.println(clientID);
-
-            // Prompt user to enter message to send to server
-            System.out.print("Enter message to send: ");
-            String message = sc.nextLine();
-            out.println(message);
-
-            // Read response from server
-            String response = in.readLine();
-            System.out.println("Response from server: " + response);
-
-            // Close the socket
-            socket.close();
+            while (true) {
+                System.out.print("Enter a message to send: ");
+                String message = sc.nextLine();
+                pw.println(message);
+                System.out.println("Response from server: " + br.readLine());
+            }
         } catch (UnknownHostException e) {
-            System.err.println("Unknown host " + e.getMessage());
-            System.exit(1);
+            System.out.println("Error: Could not connect to server.");
         } catch (IOException e) {
-            System.err.println("I/O exception " + e.getMessage());
-            System.exit(1);
+            System.out.println("Error: Could not send message.");
         }
     }
-}
-    
+}   
