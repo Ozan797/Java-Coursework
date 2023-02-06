@@ -1,21 +1,34 @@
 import java.io.*;
 import java.net.*;
 
-class Server {
-    public static void main(String args[]) throws Exception {
-        ServerSocket server = new ServerSocket(6789);
-        System.out.println("Server Started");
+public class Server {
+    public static void main(String[] args) {
+        try {
+            // Listen on port 5555
+            ServerSocket serverSocket = new ServerSocket(5555);
 
-        Socket client = server.accept();
-        System.out.println("Client Connected");
+            while (true) {
+                // Accept incoming connection
+                Socket clientSocket = serverSocket.accept();
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        PrintWriter output = new PrintWriter(client.getOutputStream(), true);
+                // Read client ID from client
+                String clientID = in.readLine();
 
-        while (true) {
-            String received = input.readLine();
-            System.out.println("Received: " + received);
-            output.println("Response: " + received);
+                // Read message from client
+                String message = in.readLine();
+
+                // Send same message back to client
+                out.println(message);
+
+                // Close the socket
+                clientSocket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("I/O exception " + e.getMessage());
+            System.exit(1);
         }
     }
 }
+    
