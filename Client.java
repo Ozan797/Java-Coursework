@@ -1,37 +1,64 @@
+// A Java program for a Client
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class Client {
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        int ID = 0;
-        System.out.print("Enter the server IP address: ");
-        String serverIP = sc.nextLine();
-        System.out.print("Enter the server port number: ");
-        int port = sc.nextInt();
-        sc.nextLine();
+	// initialize socket and input output streams
+	private Socket socket = null;
+	private DataInputStream input = null;
+	private DataOutputStream out = null;
 
-        try (Socket socket = new Socket(serverIP, port)) {
-            System.out.println("Connected to server.");
-            ID = ID + 1;
-            System.out.println("Your ID number is " + ID);
+	// constructor to put ip address and port
+	public Client(String address, int port)
+	{
+		// establish a connection
+		try {
+			socket = new Socket(address, port);
+			System.out.println("Connected");
 
-            OutputStream os = socket.getOutputStream();
-            PrintWriter pw = new PrintWriter(os, true);
-            InputStream is = socket.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			// takes input from terminal
+			input = new DataInputStream(System.in);
 
-            while (true) {
-                System.out.print("Enter a message to send: ");
-                String message = sc.nextLine();
-                pw.println(message);
-                System.out.println("Response from server: " + br.readLine());
-            }
-        } catch (UnknownHostException e) {
-            System.out.println("Error: Could not connect to server.");
-        } catch (IOException e) {
-            System.out.println("Error: Could not send message.");
-        }
-    }
-}   
+			// sends output to the socket
+			out = new DataOutputStream(
+				socket.getOutputStream());
+		}
+		catch (UnknownHostException u) {
+			System.out.println(u);
+			return;
+		}
+		catch (IOException i) {
+			System.out.println(i);
+			return;
+		}
+
+		// string to read message from input
+		String line = "";
+
+		// keep reading until "Over" is input
+		while (!line.equals("Over")) {
+			try {
+				line = input.readLine();
+				out.writeUTF(line);
+			}
+			catch (IOException i) {
+				System.out.println(i);
+			}
+		}
+
+		// close the connection
+		try {
+			input.close();
+			out.close();
+			socket.close();
+		}
+		catch (IOException i) {
+			System.out.println(i);
+		}
+	}
+
+	public static void main(String args[])
+	{
+		Client client = new Client("127.0.0.1", 5000);
+	}
+}

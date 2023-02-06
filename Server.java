@@ -1,38 +1,62 @@
-import java.io.*;
+// A Java program for a Server
 import java.net.*;
-import java.util.*;
+import java.io.*;
 
-public class Server {
-    public static void main(String[] args) throws IOException {
-        int port = 0;
-        System.out.print("Enter the port number to listen on: ");
-        Scanner sc = new Scanner(System.in);
-        port = sc.nextInt();
-        sc.nextLine();
+public class Server
+{
+	//initialize socket and input stream
+	private Socket		 socket = null;
+	private ServerSocket server = null;
+	private DataInputStream in	 = null;
 
-        try (ServerSocket ss = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
-            while (true) {
-                try (Socket socket = ss.accept()) {
-                    System.out.println("Client connected.");
-                    OutputStream os = socket.getOutputStream();
-                    PrintWriter pw = new PrintWriter(os, true);
-                    InputStream is = socket.getInputStream();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+	// constructor with port
+	public Server(int port)
+	{
+		// starts server and waits for a connection
+		try
+		{
+			server = new ServerSocket(port);
+			System.out.println("Server started");
 
-                    while (true) {
-                        String message = br.readLine();
-                        if (message == null) {
-                            break;
-                        }
-                        pw.println("Message received: " + message);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: Could not receive message.");
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error: Could not listen on port " + port);
-        }
-    }
-}  
+			System.out.println("Waiting for a client ...");
+
+			socket = server.accept();
+			System.out.println("Client accepted");
+
+			// takes input from the client socket
+			in = new DataInputStream(
+				new BufferedInputStream(socket.getInputStream()));
+
+			String line = "";
+
+			// reads message from client until "Over" is sent
+			while (!line.equals("Over"))
+			{
+				try
+				{
+					line = in.readUTF();
+					System.out.println(line);
+
+				}
+				catch(IOException i)
+				{
+					System.out.println(i);
+				}
+			}
+			System.out.println("Closing connection");
+
+			// close connection
+			socket.close();
+			in.close();
+		}
+		catch(IOException i)
+		{
+			System.out.println(i);
+		}
+	}
+
+	public static void main(String args[])
+	{
+		Server server = new Server(5000);
+	}
+}
