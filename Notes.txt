@@ -1,0 +1,10 @@
+Tasks Done:
+Make multiple people join
+Can print out messages entered
+
+Tasks to Do:
+Asks Server for Port listen
+Client enters IP address, Port and is given unique ID
+Client should be asked to input their IP address
+Coordinator should be first person joined and can get others information when asked
+If coordinantor is AFK, kick and make a different person Coordinator
