@@ -17,11 +17,9 @@ public class Server {
         try {
             //this keeps running as long as the server is running
             while (!serverSocket.isClosed()) {
-                int i = 0;
                 //accept the connection request from the client
                 Socket socket = serverSocket.accept();
-                System.out.println("Client" + i + " has connected!");
-                i++;
+                System.out.println("A new client has connected!");
                 //responsible for communicating with the client
                 ClientHandler clientHandler = new ClientHandler(socket);
 
