@@ -1,21 +1,58 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-class Server {
-    public static void main(String args[]) throws Exception {
-        ServerSocket server = new ServerSocket(6789);
-        System.out.println("Server Started");
+public class Server {
+    // responsible to listen to the port and accept the connection request from the
+    // client
+    private ServerSocket serverSocket;
 
-        Socket client = server.accept();
-        System.out.println("Client Connected");
+    // constructor responsible to create the server socket and keep it running
+    public Server(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        PrintWriter output = new PrintWriter(client.getOutputStream(), true);
+    public void startServer() {
+        
+        try {
+            //this keeps running as long as the server is running
+            while (!serverSocket.isClosed()) {
+                int i = 0;
+                //accept the connection request from the client
+                Socket socket = serverSocket.accept();
+                System.out.println("Client" + i + " has connected!");
+                i++;
+                //responsible for communicating with the client
+                ClientHandler clientHandler = new ClientHandler(socket);
 
-        while (true) {
-            String received = input.readLine();
-            System.out.println("Received: " + received);
-            output.println("Response: " + received);
+                //creates the thread
+                Thread thread = new Thread(clientHandler);
+                //starts the thread
+                thread.start();
+                
+            }
+
+        } catch (IOException e) {
+            
         }
+    }
+
+        //responsible to close the server socket if error occurs
+    public void classServerSocket() {
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        //server listening to clients on port 1234
+        ServerSocket serverSocket = new ServerSocket(1234);
+        Server server = new Server(serverSocket);
+        server.startServer();
     }
 }
