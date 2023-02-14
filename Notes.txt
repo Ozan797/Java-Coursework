@@ -7,4 +7,4 @@ port is given in code so server and client connects automatically
 Tasks to Do:
 private messaging between clients
 Coordinator should be first person joined and can get others information when asked
-If coordinantor is AFK, kick and make a different person Coordinator
+If coordinantor is AFK, kick and make another person Coordinator
