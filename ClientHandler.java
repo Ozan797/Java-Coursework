@@ -2,13 +2,14 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
 
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String clientUsername;
+    private boolean isCoordinator;
 
     public ClientHandler(Socket socket) {
         try {
@@ -16,13 +17,16 @@ public class ClientHandler implements Runnable{
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.clientUsername = bufferedReader.readLine();
+            this.isCoordinator = false;
+            if (clientHandlers.size() == 0) {
+                this.isCoordinator = true;
+            }
             clientHandlers.add(this);
             broadcastMessage("Server: " + clientUsername + " has joined the chat!");
         } catch (IOException e) {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
-
 
     @Override
     public void run() {
@@ -31,7 +35,11 @@ public class ClientHandler implements Runnable{
         while (socket.isConnected()) {
             try {
                 messageFromClient = bufferedReader.readLine();
-                broadcastMessage(messageFromClient);
+                if (isCoordinator) {
+                    broadcastMessage("Coordinator " + clientUsername + ": " + messageFromClient);
+                } else {
+                    broadcastMessage(clientUsername + ": " + messageFromClient);
+                }
             } catch (IOException e) {
                 closeEverything(socket, bufferedReader, bufferedWriter);
                 break;
@@ -42,16 +50,20 @@ public class ClientHandler implements Runnable{
     public void broadcastMessage(String messageToSend) {
         for (ClientHandler clientHandler : clientHandlers) {
             try {
-                if (!clientHandler.clientUsername.equals(clientUsername)) {
-                    clientHandler.bufferedWriter.write(messageToSend);
-                    clientHandler.bufferedWriter.newLine();
-                    clientHandler.bufferedWriter.flush();
+                if (clientHandler.socket.isConnected()) {
+                    if (!clientHandler.clientUsername.equals(clientUsername)) {
+                        clientHandler.bufferedWriter.write(messageToSend);
+                        clientHandler.bufferedWriter.newLine();
+                        clientHandler.bufferedWriter.flush();
+                    }
+                } else {
+                    clientHandlers.remove(clientHandler);
                 }
             } catch (IOException e) {
                 closeEverything(socket, bufferedReader, bufferedWriter);
             }
         }
-    }
+    }    
 
     public void removeClientHandler() {
         clientHandlers.remove(this);
