@@ -67,8 +67,16 @@ public class ClientHandler implements Runnable {
 
     public void removeClientHandler() {
         clientHandlers.remove(this);
+        if (isCoordinator) {
+            if (clientHandlers.size() > 0) {
+                ClientHandler newCoordinator = clientHandlers.get(0);
+                newCoordinator.isCoordinator = true;
+                newCoordinator.broadcastMessage("Server: " + newCoordinator.clientUsername + " is now the coordinator.");
+            }
+        }
         broadcastMessage("Server: " + clientUsername + " has left the chat!");
     }
+    
 
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         removeClientHandler();
