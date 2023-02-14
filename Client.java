@@ -25,7 +25,7 @@ public class Client {
 
     public void sendMessage() {
         try {
-            bufferedWriter.write(username + " with ID " + clientID);
+            bufferedWriter.write(username + " ID: " + clientID);
             bufferedWriter.newLine();
             bufferedWriter.flush();
 

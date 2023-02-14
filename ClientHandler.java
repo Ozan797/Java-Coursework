@@ -22,7 +22,7 @@ public class ClientHandler implements Runnable {
                 this.isCoordinator = true;
             }
             clientHandlers.add(this);
-            broadcastMessage("Server: " + clientUsername + " has joined the chat!");
+            broadcastMessage(clientUsername + " has joined");
         } catch (IOException e) {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
@@ -71,10 +71,10 @@ public class ClientHandler implements Runnable {
             if (clientHandlers.size() > 0) {
                 ClientHandler newCoordinator = clientHandlers.get(0);
                 newCoordinator.isCoordinator = true;
-                newCoordinator.broadcastMessage("Server: " + newCoordinator.clientUsername + " is now the coordinator.");
+                newCoordinator.broadcastMessage(newCoordinator.clientUsername + " is now the new coordinator.");
             }
         }
-        broadcastMessage("Server: " + clientUsername + " has left the chat!");
+        broadcastMessage(clientUsername + " has left");
     }
     
 

@@ -19,7 +19,7 @@ public class Server {
             while (!serverSocket.isClosed()) {
                 //accept the connection request from the client
                 Socket socket = serverSocket.accept();
-                System.out.println("A new client has connected!");
+                System.out.println("Client connected");
                 //responsible for communicating with the client
                 ClientHandler clientHandler = new ClientHandler(socket);
 
