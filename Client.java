@@ -13,30 +13,35 @@ public class Client {
 
     public Client(Socket socket, String username) {
         try {
+            // Initialize socket, bufferedReader, bufferedWriter, username, and clientID
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.username = username;
-            this.clientID = UUID.randomUUID().toString();
+            this.clientID = UUID.randomUUID().toString(); // Generate a random UUID for the client ID
         } catch (IOException e) {
+            // Close everything if there is an error
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
 
     public void sendMessage() {
         try {
+            // Send the client's username and client ID to the server
             bufferedWriter.write(username + " ID: " + clientID);
             bufferedWriter.newLine();
             bufferedWriter.flush();
 
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
+                // Read a message from the user and send it to the server
                 String messageToSend = scanner.nextLine();
                 bufferedWriter.write(messageToSend);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
             }
         } catch (IOException e) {
+            // Close everything if there is an error
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
@@ -49,9 +54,11 @@ public class Client {
                 
                 while (socket.isConnected()) {
                     try {
+                        // Read a message from the server and print it to the console
                         msgFromGroup = bufferedReader.readLine();
                         System.out.println(msgFromGroup);
                     } catch (IOException e) {
+                        // Close everything if there is an error
                         closeEverything(socket, bufferedReader, bufferedWriter);
                     }
                 }
@@ -61,6 +68,7 @@ public class Client {
 
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         try {
+            // Close the socket, bufferedReader, and bufferedWriter
             if (bufferedReader != null) {
                 bufferedReader.close();
             }

@@ -3,39 +3,37 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    // responsible to listen to the port and accept the connection request from the
-    // client
+    // Responsible for listening to the port and accepting the connection request from the client
     private ServerSocket serverSocket;
 
-    // constructor responsible to create the server socket and keep it running
+    // Constructor responsible for creating the server socket and keeping it running
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
     }
 
+    // Method that starts the server and accepts incoming connections
     public void startServer() {
-        
         try {
-            //this keeps running as long as the server is running
+            // This loop keeps running as long as the server is running
             while (!serverSocket.isClosed()) {
-                //accept the connection request from the client
+                // Accept the connection request from the client
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected");
-                //responsible for communicating with the client
+                // Create a client handler to communicate with the client
                 ClientHandler clientHandler = new ClientHandler(socket);
 
-                //creates the thread
+                // Create a new thread to handle the communication with this client
                 Thread thread = new Thread(clientHandler);
-                //starts the thread
+                // Start the thread
                 thread.start();
-                
             }
-
         } catch (IOException e) {
-            
+            // If an error occurs, we just catch it and continue
+            // In a real application, we would want to handle this more gracefully
         }
     }
 
-        //responsible to close the server socket if error occurs
+    // Method to close the server socket if an error occurs
     public void classServerSocket() {
         try {
             if (serverSocket != null) {
@@ -46,11 +44,13 @@ public class Server {
         }
     }
 
+    // Main method to create the server and start it listening for connections
     public static void main(String[] args) throws IOException {
-
-        //server listening to clients on port 1234
+        // Create a server socket that listens on port 1234
         ServerSocket serverSocket = new ServerSocket(1234);
+        // Create a new Server object using the server socket
         Server server = new Server(serverSocket);
+        // Start the server
         server.startServer();
     }
 }
