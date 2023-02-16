@@ -90,7 +90,7 @@ public class Client {
         String username = scanner.nextLine();
         System.out.println("Enter the IP address: ");
         String ipAddress = scanner.nextLine();
-        Socket socket = new Socket(ipAddress, 1234);
+        Socket socket = new Socket(ipAddress, 8080);
         Client client = new Client(socket, username);
         client.listenForMessage();
         client.sendMessage();

@@ -29,7 +29,6 @@ public class Server {
             }
         } catch (IOException e) {
             // If an error occurs, we just catch it and continue
-            // In a real application, we would want to handle this more gracefully
         }
     }
 
@@ -47,7 +46,7 @@ public class Server {
     // Main method to create the server and start it listening for connections
     public static void main(String[] args) throws IOException {
         // Create a server socket that listens on port 1234
-        ServerSocket serverSocket = new ServerSocket(1234);
+        ServerSocket serverSocket = new ServerSocket(8080);
         // Create a new Server object using the server socket
         Server server = new Server(serverSocket);
         // Start the server
