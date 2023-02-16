@@ -2,27 +2,46 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
 
+    // Static array list of client handlers to keep track of all clients
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+
+    // The socket, input and output streams associated with the client
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+
+    // The username of the client
     private String clientUsername;
+
+    // Whether this client is the coordinator for the chat or not
+    private boolean isCoordinator;
 
     public ClientHandler(Socket socket) {
         try {
+            // Initialize the input and output streams for the client's socket
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Read the username from the client
             this.clientUsername = bufferedReader.readLine();
+
+            // Set isCoordinator to true if there are no other clients connected
+            this.isCoordinator = false;
+            if (clientHandlers.size() == 0) {
+                this.isCoordinator = true;
+            }
+
+            // Add this client handler to the list of client handlers and broadcast a message
             clientHandlers.add(this);
-            broadcastMessage("Server: " + clientUsername + " has joined the chat!");
+            broadcastMessage(clientUsername + " has joined");
         } catch (IOException e) {
+            // Close everything if an exception occurs during initialization
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
-
 
     @Override
     public void run() {
@@ -30,9 +49,15 @@ public class ClientHandler implements Runnable{
 
         while (socket.isConnected()) {
             try {
+                // Read a message from the client and broadcast it to all other clients
                 messageFromClient = bufferedReader.readLine();
-                broadcastMessage(messageFromClient);
+                if (isCoordinator) {
+                    broadcastMessage("Coordinator " + clientUsername + ": " + messageFromClient);
+                } else {
+                    broadcastMessage(clientUsername + ": " + messageFromClient);
+                }
             } catch (IOException e) {
+                // Close everything if an exception occurs during message broadcasting
                 closeEverything(socket, bufferedReader, bufferedWriter);
                 break;
             }
@@ -40,25 +65,46 @@ public class ClientHandler implements Runnable{
     }
 
     public void broadcastMessage(String messageToSend) {
+        // Iterate over all client handlers and send the message to each of them (except this one)
         for (ClientHandler clientHandler : clientHandlers) {
             try {
-                if (!clientHandler.clientUsername.equals(clientUsername)) {
-                    clientHandler.bufferedWriter.write(messageToSend);
-                    clientHandler.bufferedWriter.newLine();
-                    clientHandler.bufferedWriter.flush();
+                if (clientHandler.socket.isConnected()) {
+                    if (!clientHandler.clientUsername.equals(clientUsername)) {
+                        clientHandler.bufferedWriter.write(messageToSend);
+                        clientHandler.bufferedWriter.newLine();
+                        clientHandler.bufferedWriter.flush();
+                    }
+                } else {
+                    // Remove the client handler if the socket is no longer connected
+                    clientHandlers.remove(clientHandler);
                 }
             } catch (IOException e) {
+                // Close everything if an exception occurs during broadcasting
                 closeEverything(socket, bufferedReader, bufferedWriter);
             }
         }
     }
 
     public void removeClientHandler() {
+        // Remove this client handler from the list of client handlers
         clientHandlers.remove(this);
-        broadcastMessage("Server: " + clientUsername + " has left the chat!");
+
+        // If this client was the coordinator, assign coordinator status to the first remaining client
+        if (isCoordinator) {
+            if (clientHandlers.size() > 0) {
+                ClientHandler newCoordinator = clientHandlers.get(0);
+                newCoordinator.isCoordinator = true;
+                newCoordinator.broadcastMessage(newCoordinator.clientUsername + " is now the new coordinator.");
+            }
+        }
+
+        // Broadcast a message indicating that this client has left
+        broadcastMessage(clientUsername + " has left");
     }
 
+
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+        // Remove this client handler from the list of client handlers and close all streams
         removeClientHandler();
         try {
             if (bufferedReader != null) {
