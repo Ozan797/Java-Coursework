@@ -32,14 +32,15 @@ public class Client {
             bufferedWriter.newLine();
             bufferedWriter.flush();
 
-            Scanner scanner = new Scanner(System.in);
-            while (socket.isConnected()) {
-                // Read a message from the user and send it to the server
-                String messageToSend = scanner.nextLine();
-                bufferedWriter.write(messageToSend);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }
+            try (Scanner scanner = new Scanner(System.in)) {
+				while (socket.isConnected()) {
+				    // Read a message from the user and send it to the server
+				    String messageToSend = scanner.nextLine();
+				    bufferedWriter.write(messageToSend);
+				    bufferedWriter.newLine();
+				    bufferedWriter.flush();
+				}
+			}
         } catch (IOException e) {
             // Close everything if there is an error
             closeEverything(socket, bufferedReader, bufferedWriter);
@@ -85,14 +86,15 @@ public class Client {
 
     public static void main(String[] args) throws IOException {
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your username: ");
-        String username = scanner.nextLine();
-        System.out.println("Enter the IP address: ");
-        String ipAddress = scanner.nextLine();
-        Socket socket = new Socket(ipAddress, 1234);
-        Client client = new Client(socket, username);
-        client.listenForMessage();
-        client.sendMessage();
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter your username: ");
+            String username = scanner.nextLine();
+            System.out.println("Enter the IP address: ");
+            String ipAddress = scanner.nextLine();
+            Socket socket = new Socket(ipAddress, 1234);
+            Client client = new Client(socket, username);
+            client.listenForMessage();
+            client.sendMessage();
+        }
     }
 }
