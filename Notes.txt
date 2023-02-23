@@ -3,8 +3,10 @@ Make multiple people join
 Can print out messages entered
 client enters their ip and is assigned unique ID
 port is given in code so server and client connects automatically
-Coordinator should be first person joined and can get others information when asked
-If coordinantor is AFK, kick and make another person Coordinator
+Coordinator should be first person joined 
+If coordinantor leaves then next person who joins is coordinantor
 
 Tasks to Do:
 private messaging between clients
+Coordinator can get others information when asked
+If coordinantor is AFK, kick and make another person Coordinator
