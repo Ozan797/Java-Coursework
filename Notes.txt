@@ -9,4 +9,3 @@ If coordinantor leaves then next person who joins is coordinantor
 Tasks to Do:
 private messaging between clients
 Coordinator can get others information when asked
-If coordinantor is AFK, kick and make another person Coordinator
