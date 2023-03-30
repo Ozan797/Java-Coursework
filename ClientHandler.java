@@ -24,16 +24,20 @@ public class ClientHandler implements Runnable {
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+    
             // Read the username from the client
             this.clientUsername = bufferedReader.readLine();
-
+    
             // Set isCoordinator to true if there are no other clients connected
             this.isCoordinator = false;
             if (clientHandlers.size() == 0) {
                 this.isCoordinator = true;
+                // Send a message to the first client that joins the server
+                bufferedWriter.write("You are the first client to join the server therefore, you have the role of the coordinator.");
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
             }
-
+    
             // Add this client handler to the list of client handlers and broadcast a message
             clientHandlers.add(this);
             broadcastMessage(clientUsername + " has joined");
@@ -42,6 +46,7 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+    
 
     @Override
     public void run() {
