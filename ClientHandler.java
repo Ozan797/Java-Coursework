@@ -88,20 +88,28 @@ public class ClientHandler implements Runnable {
     public void removeClientHandler() {
         // Remove this client handler from the list of client handlers
         clientHandlers.remove(this);
-
+    
         // If this client was the coordinator, assign coordinator status to the first remaining client
         if (isCoordinator) {
             if (clientHandlers.size() > 0) {
                 ClientHandler newCoordinator = clientHandlers.get(0);
                 newCoordinator.isCoordinator = true;
                 newCoordinator.broadcastMessage(newCoordinator.clientUsername + " is now the new coordinator.");
+    
+                // Send a message to all clients except the new coordinator
+                for (ClientHandler clientHandler : clientHandlers) {
+                    if (!clientHandler.equals(newCoordinator)) {
+                        clientHandler.broadcastMessage("You are now the new coordinator");
+                    }
+                }
             }
         }
-
+    
         // Broadcast a message indicating that this client has left
         broadcastMessage(clientUsername + " has left");
     }
-
+    
+    
 
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         // Remove this client handler from the list of client handlers and close all streams
