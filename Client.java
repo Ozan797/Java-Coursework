@@ -3,7 +3,7 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-import java.util.UUID;
+// import java.util.UUID;
 
 public class Client {
 
@@ -11,7 +11,7 @@ public class Client {
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String username;
-    private String clientID;
+    // private String clientID;
 
     public Client(Socket socket, String username) {
         try {
@@ -20,7 +20,7 @@ public class Client {
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.username = username;
-            this.clientID = UUID.randomUUID().toString(); // Generate a random UUID for the client ID
+            // this.clientID = UUID.randomUUID().toString(); // Generate a random UUID for the client ID
         } catch (IOException e) {
             // Close everything if there is an error
             closeEverything(socket, bufferedReader, bufferedWriter);
@@ -30,7 +30,7 @@ public class Client {
     public void sendMessage() {
         try {
             // Send the client's username and client ID to the server
-            bufferedWriter.write(username + " ID: " + clientID);
+            bufferedWriter.write(username);
             bufferedWriter.newLine();
             bufferedWriter.flush();
 
