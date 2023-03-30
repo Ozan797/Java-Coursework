@@ -1,14 +1,26 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
+    private static List<ClientHandler> clientHandlers = new ArrayList<>();
     // Responsible for listening to the port and accepting the connection request from the client
     private ServerSocket serverSocket;
 
     // Constructor responsible for creating the server socket and keeping it running
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
+    }
+
+    public static String getClientID(Socket clientSocket) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            if (clientHandler.getClientSocket().equals(clientSocket)) {
+                return clientHandler.getClientID();
+            }
+        }
+        return null;
     }
 
     // Method that starts the server and accepts incoming connections

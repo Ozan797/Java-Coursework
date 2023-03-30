@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ClientHandler implements Runnable {
 
@@ -11,6 +12,10 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+    private String clientName;
+    private String clientID;
+    private String clientIP;
+
 
     // The username of the client
     private String clientUsername;
@@ -27,6 +32,15 @@ public class ClientHandler implements Runnable {
     
             // Read the username from the client
             this.clientUsername = bufferedReader.readLine();
+            this.clientName = clientUsername;
+            this.clientID = UUID.randomUUID().toString();
+            this.clientIP = socket.getInetAddress().getHostAddress();
+            bufferedWriter.write("Your ID is: " + clientID);
+            bufferedWriter.newLine();
+            bufferedWriter.write("Your IP address is: " + clientIP);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+
     
             // Set isCoordinator to true if there are no other clients connected
             this.isCoordinator = false;
@@ -46,6 +60,29 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+
+
+    public void handleClientCommand(String messageFromClient) {
+        if (messageFromClient.startsWith("/clients")) {
+            String clientsInfo = getClientsInfo();
+            try {
+                bufferedWriter.write(clientsInfo);
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static String getClientsInfo() {
+        StringBuilder clientsInfo = new StringBuilder();
+        for (ClientHandler clientHandler : clientHandlers) {
+            clientsInfo.append(clientHandler.clientName).append(" ID: ").append(clientHandler.clientID)
+                    .append(" IP: ").append(clientHandler.clientIP).append("\n");
+        }
+        return clientsInfo.toString();
+    }
     
 
     @Override
@@ -56,10 +93,16 @@ public class ClientHandler implements Runnable {
             try {
                 // Read a message from the client and broadcast it to all other clients
                 messageFromClient = bufferedReader.readLine();
+                // if (messageFromClient.startsWith("@")) {
+                //     privateMessage(messageFromClient);
+                // }
                 if (isCoordinator) {
-                    broadcastMessage("Coordinator " + clientUsername + ": " + messageFromClient);
+                    if (messageFromClient.startsWith("/")) {
+                        handleClientCommand(messageFromClient);
+                    }
+                    broadcastMessage("Coordinator " + clientUsername + " ID: " + clientID + ": " + messageFromClient);
                 } else {
-                    broadcastMessage(clientUsername + ": " + messageFromClient);
+                    broadcastMessage(clientUsername + " ID: " + clientID + ": " + messageFromClient);
                 }
             } catch (IOException e) {
                 // Close everything if an exception occurs during message broadcasting
@@ -133,4 +176,15 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+    
+    public String getClientID() {
+        return this.clientID;
+    }
+
+    public Object getClientSocket() {
+        return this.socket;
+    }
+
 }
+
+   
