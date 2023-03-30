@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -33,19 +35,22 @@ public class Client {
             bufferedWriter.flush();
 
             try (Scanner scanner = new Scanner(System.in)) {
-				while (socket.isConnected()) {
-				    // Read a message from the user and send it to the server
-				    String messageToSend = scanner.nextLine();
-				    bufferedWriter.write(messageToSend);
-				    bufferedWriter.newLine();
-				    bufferedWriter.flush();
-				}
-			}
+                while (socket.isConnected()) {
+                    // Read a message from the user and send it to the server
+                    String messageToSend = scanner.nextLine();
+                    LocalTime timestamp = LocalTime.now();
+                    String formattedTimestamp = timestamp.format(DateTimeFormatter.ofPattern("HH:mm"));
+                    bufferedWriter.write( messageToSend + " [" + formattedTimestamp + "]");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                }
+            }
         } catch (IOException e) {
             // Close everything if there is an error
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+    
 
     public void listenForMessage() {
         new Thread(new Runnable() {
